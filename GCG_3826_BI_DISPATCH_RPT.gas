@@ -1,0 +1,452 @@
+Program.Sub.ScreenSU.Start
+gui.SS_Form1..create
+gui.SS_Form1..caption("Department Dispatch List ")
+gui.SS_Form1..size(4095,1825)
+gui.SS_Form1..minx(0)
+gui.SS_Form1..miny(0)
+gui.SS_Form1..position(0,0)
+gui.SS_Form1..event(unload,UNLOAD)
+gui.SS_Form1..alwaysontop(False)
+gui.SS_Form1..fontname("Arial")
+gui.SS_Form1..fontsize(8)
+gui.SS_Form1..forecolor(0)
+gui.SS_Form1..fontstyle(,,,,)
+gui.SS_Form1..BackColor(-2147483633)
+gui.SS_Form1..controlbox(True)
+gui.SS_Form1..maxbutton(False)
+gui.SS_Form1..minbutton(False)
+gui.SS_Form1..mousepointer(0)
+gui.SS_Form1..moveable(True)
+gui.SS_Form1..sizeable(False)
+gui.SS_Form1..ShowInTaskBar(True)
+gui.SS_Form1..titlebar(True)
+gui.SS_Form1.lbl_dStart.create(label,"Start Date",True,1800,200,1,100,135,True,0,Arial,8,-2147483633,0)
+gui.SS_Form1.lbl_dStart.defaultvalue("")
+gui.SS_Form1.lbl_dStart.controlgroup(0)
+gui.SS_Form1.dStart.create(datepicker)
+gui.SS_Form1.dStart.visible(True)
+gui.SS_Form1.dStart.size(1800,345)
+gui.SS_Form1.dStart.zorder(0)
+gui.SS_Form1.dStart.position(100,335)
+gui.SS_Form1.dStart.enabled(True)
+gui.SS_Form1.dStart.checkbox(False)
+gui.SS_Form1.dStart.defaultvalue("")
+gui.SS_Form1.dStart.controlgroup(0)
+gui.SS_Form1.lbl_dEnd.create(label,"End Date",True,1800,200,1,1985,135,True,0,Arial,8,-2147483633,0)
+gui.SS_Form1.lbl_dEnd.defaultvalue("")
+gui.SS_Form1.lbl_dEnd.controlgroup(0)
+gui.SS_Form1.dEnd.create(datepicker)
+gui.SS_Form1.dEnd.visible(True)
+gui.SS_Form1.dEnd.size(1800,345)
+gui.SS_Form1.dEnd.zorder(0)
+gui.SS_Form1.dEnd.position(1985,335)
+gui.SS_Form1.dEnd.enabled(True)
+gui.SS_Form1.dEnd.checkbox(False)
+gui.SS_Form1.dEnd.defaultvalue("")
+gui.SS_Form1.dEnd.controlgroup(0)
+gui.SS_Form1.cmdPrint.create(button)
+gui.SS_Form1.cmdPrint.caption("Print")
+gui.SS_Form1.cmdPrint.visible(True)
+gui.SS_Form1.cmdPrint.size(1000,360)
+gui.SS_Form1.cmdPrint.zorder(0)
+gui.SS_Form1.cmdPrint.position(100,850)
+gui.SS_Form1.cmdPrint.enabled(True)
+gui.SS_Form1.cmdPrint.fontname("Arial")
+gui.SS_Form1.cmdPrint.fontsize(8)
+gui.SS_Form1.cmdPrint.event(click,cmdprint_click)
+gui.SS_Form1.cmdPrint.defaultvalue("")
+gui.SS_Form1.cmdPrint.controlgroup(0)
+gui.SS_Form1.dStart.tabstop(true)
+gui.SS_Form1.dStart.tabindex(1)
+gui.SS_Form1.dEnd.tabstop(true)
+gui.SS_Form1.dEnd.tabindex(2)
+gui.SS_Form1.cmdPrint.tabstop(true)
+gui.SS_Form1.cmdPrint.tabindex(3)
+
+
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+Variable.Global.iRptID.Declare(Long,0)
+Variable.Global.sTerminal.Declare(String)
+Variable.UDT.uReport.Define("PRIORITY",String,PRIORITY)
+Variable.UDT.uReport.Define("ALLOY",String,ALLOY)
+Variable.UDT.uReport.Define("PART",String,PART)
+Variable.UDT.uReport.Define("LOCATION",String,LOCATION)
+Variable.UDT.uReport.Define("DESC",String,DESC)
+Variable.UDT.uReport.Define("CUST_NAME",String,CUST_NAME)
+Variable.UDT.uReport.Define("WC",String,WC)
+Variable.UDT.uReport.Define("QTY_ORDER",Float,QTY_ORDER)
+Variable.UDT.uReport.Define("QTY_REM",Float,QTY_REM)
+Variable.UDT.uReport.Define("CAST_HRS",Float,CAST_HRS)
+Variable.UDT.uReport.Define("LBS_REM",Float,LBS_REM)
+Variable.UDT.uReport.Define("RPTID",Long,RPTID)
+Variable.UDT.uReport.Define("TERMINAL",String,TERMINAL)
+Variable.UDT.uReport.Define("HELP_HRS",Float,HELP_HRS)
+Variable.UDT.uReport.Define("SEQ_START",Date,SEQ_START)
+Variable.UDT.uReport.Define("SEQ_DUE",Date,SEQ_DUE)
+Variable.UDT.uReport.Define("JOB",String,JOB)
+Variable.UDT.uReport.Define("SUFFIX",String,SUFFIX)
+Variable.uGlobal.uReport.Declare("uReport")
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+F.Intrinsic.Control.SetErrorHandler("Main_Err")
+F.Intrinsic.Control.ClearErrors
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING ABOVE
+'F.Intrinsic.Debug.InvokeDebugger
+
+'DECLARE VARIABLES
+'-----------------------------------------------------------------------------------------
+V.Local.sError.Declare(String)
+V.Local.bTable.Declare(Boolean)
+V.Local.iRptId.Declare(Long)
+'-----------------------------------------------------------------------------------------
+'OPEN CONNECTION
+'-----------------------------------------------------------------------------------------
+F.ODBC.Connection!CONX.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+'-----------------------------------------------------------------------------------------
+'CHECK IF TABLE EXISTS
+'-----------------------------------------------------------------------------------------
+F.ODBC.Connection!CONX.TableExists("GCG_3826_BI_DISPATCH",V.Local.bTable)
+F.Intrinsic.Control.If(V.Local.bTable,=,False)
+	F.Intrinsic.Control.CallSub(Unload)
+F.Intrinsic.Control.EndIf
+'-----------------------------------------------------------------------------------------
+'GET TERMINAL
+'-----------------------------------------------------------------------------------------
+V.Global.sTerminal.Set(V.Caller.Terminal)
+'-----------------------------------------------------------------------------------------
+'OPEN SCREEN
+'-----------------------------------------------------------------------------------------
+Gui.SS_Form1..Show
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING BELOW
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Main_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3826_BI_DISPATCH_RPT.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Main.End
+
+Program.Sub.UNLOAD.Start
+F.Intrinsic.Control.SetErrorHandler("UNLOAD_Err")
+F.Intrinsic.Control.ClearErrors
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING ABOVE
+
+'DECLARE VARIABLES
+'-----------------------------------------------------------------------------------------
+V.Local.sError.Declare(String)
+'-----------------------------------------------------------------------------------------
+'CLOSE CONNECTION AND TERMINATE PROGRAM
+'-----------------------------------------------------------------------------------------
+F.ODBC.Connection!CONX.Close
+F.Intrinsic.Control.End
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING BELOW
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("UNLOAD_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3826_BI_DISPATCH_RPT.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.UNLOAD.End
+
+program.sub.cmdprint_click.start
+F.Intrinsic.Control.SetErrorHandler("cmdprint_click_Err")
+F.Intrinsic.Control.ClearErrors
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING ABOVE
+
+'DECLARE VARIABLES
+'-----------------------------------------------------------------------------------------
+V.Local.sError.Declare(String)
+V.Local.sStartDate.Declare(Date)
+V.Local.sEndDate.Declare(Date)
+V.Local.sSQL.Declare(String)
+'-----------------------------------------------------------------------------------------
+'FORMAT SCREEN DATE RANGE TO PERVASIVE FRIENDLY DATES
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.String.Format(V.Screen.SS_Form1!dStart.Value,"YYYY-MM-DD",V.Local.sStartDate)
+F.Intrinsic.String.Format(V.Screen.SS_Form1!dEnd.Value,"YYYY-MM-DD",V.Local.sEndDate)
+'-----------------------------------------------------------------------------------------
+'START COLLECTION OF DATA
+'-----------------------------------------------------------------------------------------
+'Clear UDT & Hide Screen
+Gui.SS_Form1..Visible(False)
+V.uGlobal.uReport.Redim(-1,-1)
+'Concat SQL with Date Range to Get Job Operations
+F.Intrinsic.String.Concat("SELECT JOB, SUFFIX, WORKCENTER, ROUTER, UNITS_OPEN, UNITS_COMPLETE, DATE_START, DATE_DUE FROM V_JOB_OPERATIONS_WC as JO LEFT JOIN V_JOB_HEADER AS JH ON JO.JOB = JH.JOB AND JO.SUFFIX = JH.SUFFIX WHERE JH.DATE_CLOSED = '1900-01-01' AND JO.DATE_START BETWEEN '",V.Local.sStartDate.PervasiveDate,"' AND '",V.Local.sEndDate.PervasiveDate,"'",V.Local.sSQL)
+F.Intrinsic.String.Concat(V.Local.sSQL," AND JO.FLAG_CLOSED <> 'Y'",V.local.sSQL)
+F.Intrinsic.String.Concat(V.local.sSQL," AND JO.WORKCENTER IN('MCH3','MCH2','MCH1','TBLA','TBL','MS24','MS23','MS22','MS21','MS20','MS19','MS18','MS17','MS16','MS15','MS14','TS13','TS12','TS11','TS10','TS09','TS08','TS07','TS06','TS05','TS04','TS03','TS02','TS01')",V.LOCAL.SSQL)
+'Open RecordSet using SQL
+F.ODBC.Connection!CONX.OpenRecordSetRO("rst",V.Local.sSQL)
+'Check if RecordSet is Empty
+F.Intrinsic.Debug.Stop
+F.Intrinsic.control.If(V.ODBC.CONX!rst.EOF,=,False)
+	'If RecordSet is Not Empty, call sub to process data
+	F.Intrinsic.Control.CallSub(Getwcdata)
+	F.Intrinsic.Control.CallSub(Gethlprdata)
+	F.Intrinsic.Control.CallSub(Print)
+
+F.Intrinsic.control.Else
+	'If RecordSet is Empty, Give Error Message and Close
+	F.Intrinsic.UI.Msgbox("No records were found. Please try expanding your search criteria")
+	F.Intrinsic.Control.CallSub(Unload)
+F.Intrinsic.Control.EndIf
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING BELOW
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("cmdprint_click_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3826_BI_DISPATCH_RPT.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+program.sub.cmdprint_click.end
+
+Program.Sub.GetWCData.Start
+F.Intrinsic.Control.SetErrorHandler("GetWCData_Err")
+F.Intrinsic.Control.ClearErrors
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING ABOVE
+
+
+'DECLARE VARIABLES
+'-----------------------------------------------------------------------------------------
+V.Local.sError.Declare(String)
+V.Local.sSQL.Declare(String)
+V.Local.iC.Declare(Long)
+V.local.iC.Set(0)
+V.Local.fQtyRem.Declare(Float)
+V.Local.fLbsRem.Declare(Float)
+V.Local.fCastHrs.Declare(Float)
+V.local.iRPTID.Declare(Long)
+'-----------------------------------------------------------------------------------------
+'LOOP THROUGH RECORDSET. IF IT IS NOT A HLPR SEQUENCE, WRITE TO UDT. IF IT IS A HLPR SEQUENCE, MOVE TO THE NEXT RECORD.
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.DoUntil(V.ODBC.CONX!rst.EOF,=,True)
+
+		
+	V.local.fQtyRem.Set(0)
+
+	F.Intrinsic.Control.If(V.uGlobal.uReport.UBound,=,-1)
+		V.uGlobal.uReport.Redim(0,0)
+		V.Local.iC.Set(0)
+	F.Intrinsic.control.Else
+		V.uGlobal.uReport.RedimPreserve(0,V.Local.iC)
+	F.Intrinsic.control.EndIf
+
+			V.uGlobal.uReport(V.Local.iC)!JOB.Set(V.ODBC.CONX!rst.FieldValTrim!JOB)
+			V.uGlobal.uReport(V.Local.iC)!SUFFIX.Set(V.ODBC.CONX!rst.FieldValTrim!SUFFIX)
+			V.uGlobal.uReport(v.Local.iC)!WC.Set(V.ODBC.CONX!rst.FieldValTrim!WORKCENTER)
+
+	F.Intrinsic.Math.Sub(V.ODBC.CONX!rst.FieldValFloat!UNITS_OPEN,V.ODBC.CONX!rst.FieldValFloat!UNITS_COMPLETE,V.Local.fQtyRem)
+		V.uglobal.uReport(V.local.iC)!QTY_REM.Set(V.Local.fQtyRem)
+
+	V.uGlobal.uReport(V.Local.iC)!SEQ_START.Set(V.ODBC.CONX!rst.FieldValPervasiveDate!DATE_START)
+	V.uGlobal.uReport(V.Local.iC)!SEQ_DUE.Set(V.ODBC.CONX!rst.FieldValPervasiveDate!DATE_DUE)
+
+
+	V.local.sSQL.set("SELECT J.PART,J.LOCATION,J.DESCRIPTION, J.CUSTOMER, J.PRIORITY, C.NAME_CUSTOMER, J.QTY_CUSTOMER FROM V_JOB_HEADER AS J LEFT JOIN V_CUSTOMER_MASTER AS C ON J.CUSTOMER = C.CUSTOMER")
+	F.Intrinsic.String.Concat(V.Local.sSQL," WHERE J.JOB = '",V.ODBC.CONX!rst.FieldValTrim!JOB,"' AND SUFFIX = '",V.ODBC.CONX!rst.FieldValTrim!SUFFIX,"'",V.Local.sSQL)
+	F.ODBC.Connection!CONX.OpenLocalRecordsetRO("rstHead",V.Local.sSQL)
+	F.Intrinsic.Control.If(V.ODBC.CONX!rstHead.EOF,=,False)
+		V.uglobal.uReport(v.Local.iC)!PART.Set(V.ODBC.CONX!rstHead.FieldValTrim!PART)
+		V.uGlobal.uReport(V.lOCAL.iC)!LOCATION.Set(V.ODBC.CONX!rstHead.FieldValTrim!LOCATION)
+		V.uGlobal.uReport(V.Local.iC)!DESC.Set(V.ODBC.CONX!rstHead.FieldValTrim!DESCRIPTION)
+		V.uGlobal.uReport(V.Local.iC)!PRIORITY.Set(V.ODBC.CONX!rstHead.FieldValTrim!PRIORITY)
+		V.uGlobal.uReport(V.Local.iC)!QTY_ORDER.Set(V.ODBC.CONX!rstHead.FieldValFloat!QTY_CUSTOMER)
+		V.uGlobal.uReport(V.Local.iC)!CUST_NAME.Set(V.ODBC.CONX!rstHead.FieldValTrim!NAME_CUSTOMER)
+	F.Intrinsic.Control.EndIf
+	F.ODBC.CONX!rstHead.Close
+
+	F.Intrinsic.String.Concat("SELECT MST.CODE_SORT FROM V_INVENTORY_MSTR AS MST WHERE PART = '",V.uGlobal.uReport(V.Local.iC)!PART,"' AND LOCATION = '",V.uGlobal.uReport(V.Local.iC)!LOCATION,"'",V.Local.sSQL)
+	F.ODBC.Connection!CONX.OpenLocalRecordsetRO("rstInv",V.Local.sSQL)
+	F.Intrinsic.Control.If(V.ODBC.CONX!rstInv.EOF,=,False)
+		V.uGlobal.uReport(v.Local.iC)!ALLOY.Set(V.ODBC.CONX!rstInv.FieldValTrim!CODE_SORT)
+	F.Intrinsic.Control.EndIf
+	F.ODBC.CONX!rstInv.Close
+
+	F.Intrinsic.String.Concat("SELECT RUN_TIME FROM V_ROUTER_LINE WHERE ROUTER = '",V.ODBC.CONX!rst.FieldValTrim!ROUTER,"' AND PART_WC_OUTSIDE = '",V.uglobal.uReport(V.Local.iC)!ALLOY,"' AND LMO = 'M'",V.Local.sSQL)
+	F.ODBC.Connection!CONX.OpenLocalRecordsetRO("rstRout",V.Local.sSQL)
+	F.Intrinsic.Control.If(V.ODBC.CONX!rstRout.EOF,=,False)
+		F.Intrinsic.Math.Mult(V.local.fQtyRem,V.ODBC.CONX!rstRout.FieldValFloat!RUN_TIME,V.Local.fLbsRem)
+		V.uGlobal.uReport(V.Local.iC)!LBS_REM.Set(V.Local.fLbsRem)
+	F.Intrinsic.Control.EndIf
+	F.ODBC.CONX!rstRout.Close
+
+	F.Intrinsic.String.Concat("SELECT RUN_TIME FROM V_ROUTER_LINE WHERE ROUTER = '",V.ODBC.CONX!rst.FieldValTrim!ROUTER,"' AND PART_WC_OUTSIDE = '",V.uglobal.uReport(v.local.iC)!WC,"' AND LMO = 'L'",V.local.sSQL)
+	F.ODBC.Connection!CONX.OpenLocalRecordsetRO("rstRout",V.local.sSQL)
+	F.Intrinsic.Control.If(V.ODBC.CONX!rstRout.EOF,=,False)
+		F.Intrinsic.Math.Div(V.local.fQtyRem,V.ODBC.CONX!rstRout.FieldValFloat!RUN_TIME,V.Local.fCastHrs)
+		V.uGlobal.uReport(V.Local.iC)!CAST_HRS.Set(V.Local.fCastHrs)
+	F.Intrinsic.Control.EndIf
+	F.ODBC.CONX!rstRout.Close
+	F.Global.BI.GetIDFromName("GCG_3826_BI_DISPATCH_RPT.rpt",V.Local.iRptID)
+	V.uGlobal.uReport(V.Local.iC)!TERMINAL.Set(V.Global.sTerminal)
+	V.uGlobal.uReport(V.Local.iC)!RPTID.Set(V.Local.iRptID)
+				
+	F.Intrinsic.Math.Add(V.Local.iC,1,V.Local.iC)
+
+
+	F.ODBC.CONX!rst.MoveNext
+F.Intrinsic.Control.Loop
+F.ODBC.CONX!rst.Close
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING BELOW
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("GetWCData_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3826_BI_DISPATCH_RPT.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.GetWCData.End
+
+Program.Sub.GetHLPRData.Start
+F.Intrinsic.Control.SetErrorHandler("GetHLPRData_Err")
+F.Intrinsic.Control.ClearErrors
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING ABOVE
+'F.Intrinsic.Debug.InvokeDebugger
+F.Intrinsic.Debug.Stop
+
+'DECLARE VARIABLES
+'-----------------------------------------------------------------------------------------
+V.Local.sError.Declare(String)
+V.Local.sSQL.Declare(String)
+V.local.iC.Declare(Long)
+V.Local.fHelpHrs.Declare(Float)
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.For(V.Local.iC,V.uGlobal.uReport.LBound,V.uGlobal.uReport.UBound,1)
+'F.Intrinsic.Debug.Stop
+	V.Local.sSQL.Set("SELECT J.UNITS_OPEN, J.UNITS_COMPLETE, R.RUN_TIME FROM V_JOB_OPERATIONS_WC AS J LEFT JOIN V_ROUTER_LINE AS R ON J.ROUTER = R.ROUTER AND J.ROUTER_SEQ = R.LINE_ROUTER")
+	F.Intrinsic.String.Concat(V.Local.sSQL," where J.JOB = '",V.uGlobal.uReport(V.Local.iC)!JOB.Trim,"' AND J.SUFFIX = '",V.uGlobal.uReport(V.Local.iC)!SUFFIX.Trim,"' AND LMO = 'L' AND WORKCENTER = 'HLPR'",V.Local.sSQL)
+	F.ODBC.Connection!CONX.OpenLocalRecordsetRO("rst",V.Local.sSQL)
+	F.Intrinsic.Control.If(V.ODBC.CONX!rst.EOF,=,False)
+	F.Intrinsic.Control.If(V.ODBC.CONX!rst.FieldVal!RUN_TIME,=,"")
+		V.Local.fHelpHrs.Set(0)
+	F.Intrinsic.Control.Else
+		F.Intrinsic.Math.Sub(V.ODBC.CONX!rst.FieldValFloat!UNITS_OPEN,V.ODBC.CONX!rst.FieldValFloat!UNITS_COMPLETE,V.Local.fHelpHrs)
+			F.Intrinsic.Control.If(V.Local.fHelpHrs,<>,0)
+				F.Intrinsic.Math.Div(V.Local.fHelpHrs,V.ODBC.CONX!rst.FieldValFloat!RUN_TIME,V.Local.fHelpHrs)
+			F.Intrinsic.Control.EndIf
+	F.Intrinsic.Control.EndIf
+'		F.Intrinsic.UI.Msgbox(V.Local.fHelpHrs)
+	V.uGlobal.uReport(v.Local.iC)!HELP_HRS.Set(V.Local.fHelpHrs)
+	F.Intrinsic.Control.EndIf
+	F.ODBC.CONX!rst.Close
+F.Intrinsic.Control.Next(V.local.iC)
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING BELOW
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("GetHLPRData_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3826_BI_DISPATCH_RPT.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.GetHLPRData.End
+
+Program.Sub.Print.Start
+F.Intrinsic.Control.SetErrorHandler("Print_Err")
+F.Intrinsic.Control.ClearErrors
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING ABOVE
+
+'DECLARE VARIABLES
+'-----------------------------------------------------------------------------------------
+V.Local.sError.Declare(String)
+V.Local.sSQL.Declare(String)
+V.local.sParamName.Declare(String)
+V.Local.sParamValue.Declare(String)
+V.Local.sStart.Declare(String)
+V.Local.sEnd.Declare(String)
+V.Local.sStart.Set(V.Screen.SS_Form1!dStart.Value)
+V.Local.sEnd.Set(V.Screen.SS_Form1!dEnd.Value)
+V.Local.sRPTID.Declare(String)
+V.Local.iRPTID.Declare(String)
+
+F.Intrinsic.String.Format(V.Local.sStart,"YYYYMMDD",V.Local.sStart)
+F.Intrinsic.String.Format(V.Local.sEnd,"YYYYMMDD",V.Local.sEnd)
+
+'-----------------------------------------------------------------------------------------
+'DELETE EXISTING RECORDS FROM BI TABLE
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.String.Concat("DELETE FROM GCG_3826_BI_DISPATCH WHERE TERMINAL = '",V.Caller.Terminal,"'",V.Local.sSQL)
+F.ODBC.Connection!CONX.Execute(V.Local.sSQL)
+'-----------------------------------------------------------------------------------------
+'WRITE CONTENTS OF UDT TO BI TABLE
+'-----------------------------------------------------------------------------------------
+V.Local.sSQL.Set("SELECT * FROM GCG_3826_BI_DISPATCH")
+F.ODBC.Connection!CONX.OpenLocalRecordsetRW("RST",V.Local.sSQL)
+F.Intrinsic.Variable.SaveUDTToRecordset("CONX","RST","V.UGLOBAL.UREPORT")
+F.ODBC.CONX!rst.Close
+'-----------------------------------------------------------------------------------------
+'GET REPORT ID
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Debug.Stop
+
+F.Global.BI.GetIDFromName("GCG_3826_BI_DISPATCH_RPT.rpt",V.Local.iRptID)
+F.Intrinsic.control.If(V.Local.iRptId,=,-1)
+f.Intrinsic.Control.or(v.Local.iRPTID,=,0)
+	F.Intrinsic.UI.Msgbox("No Report ID has been assigned for this Report. Please attach the report to a report ID")
+	F.Intrinsic.Control.CallSub(Unload)
+F.Intrinsic.Control.EndIf
+'-----------------------------------------------------------------------------------------
+'CALL BI REPORT
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.String.Split("Terminal*!*StartDate*!*EndDate","*!*",V.Local.sParamName)
+F.Intrinsic.String.Concat(V.Global.sTerminal,"*!*",V.Local.sStart,"*!*",V.Local.sEnd,V.local.sParamValue)
+F.Intrinsic.String.Split(V.Local.sParamValue,"*!*",V.Local.sParamValue)
+F.Global.BI.PrintReport(V.Local.iRptID,0,V.Local.sParamName,V.Local.sParamValue,"",True)
+'-----------------------------------------------------------------------------------------
+'END PROGRAM
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.CallSub(Unload)
+'-----------------------------------------------------------------------------------------
+'ERROR HANDLING BELOW
+'-----------------------------------------------------------------------------------------
+F.Intrinsic.Control.ExitSub
+
+F.Intrinsic.Control.Label("Print_Err")
+F.Intrinsic.Control.If(V.Ambient.ErrorNumber,<>,0)
+	Function.Intrinsic.String.Concat("Project: GCG_3826_BI_DISPATCH_RPT.gas",V.Ambient.Newline,V.Ambient.Newline,"Subroutine: ",V.Ambient.CurrentSubroutine,V.Ambient.NewLine,"Error Occurred ",V.Ambient.ErrorNumber," with description ",V.Ambient.ErrorDescription,V.Local.sError)
+	F.Intrinsic.UI.Msgbox(V.Local.sError)
+Function.Intrinsic.Control.EndIf
+
+
+Program.Sub.Print.End
+
+Program.Sub.Comments.Start
+${$0$}$GCG_BI_DISPATCH_RPT$}$BLEFLER$}$12/3/2013
+Program.Sub.Comments.End
+Program.Sub.ScreenSS.Start
+SS_Form1{{CAPTION::Department Dispatch List by Alloy and Start Date
+SS_Form1.CTRL{{NAME::dStart\\TYPE::6\\CAPTION::Start Date\\TABSTOP::1\\GROUP::1\\BROWSER::0\\SIZE::1
+SS_Form1.CTRL{{NAME::dEnd\\TYPE::6\\CAPTION::End Date\\TABSTOP::2\\GROUP::1\\BROWSER::0\\SIZE::1
+SS_Form1.CTRL{{NAME::cmdPrint\\TYPE::5\\CAPTION::Print\\TABSTOP::3\\GROUP::2\\BROWSER::0\\SIZE::1
+
+Program.Sub.ScreenSS.End
+
